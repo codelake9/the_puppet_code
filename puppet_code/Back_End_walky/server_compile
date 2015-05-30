@@ -1,0 +1,2 @@
+TARGET="websocket_server.c"
+gcc -o  program $TARGET  -lrt -lm -L/usr/local/lib -lwiringPi -lwebsockets

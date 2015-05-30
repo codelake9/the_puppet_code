@@ -1,0 +1,2 @@
+TARGET="generated_walky_code.c"
+gcc -o  run_walky  $TARGET  -lrt -lm -L/usr/local/lib -lwiringPi -lwebsockets

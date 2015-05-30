@@ -1,0 +1,2 @@
+TARGET="serial_com_demo.c"
+gcc -o  program $TARGET  -lrt -lm -L/usr/local/lib -lwiringPi -lwebsockets

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        #left {
+            width: 50%;
+            float: left;
+        }
+        #right {
+            width: 50%;
+            float: left;
+        }
+    </style>
+
+<style>
+div.scroll
+{
+  width:"100%";
+  height:100%;
+  overflow:scroll;
+}
+</style>
+
+<style type="text/css">
+      BODY,
+      HTML {
+        padding: 0px;
+        margin: 0px;
+      }
+      BODY {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        background: #FFF;
+        padding: 15px;
+      }
+
+      H1 {
+        font-size: 20px;
+        font-weight: normal;
+      }
+
+      H2 {
+        font-size: 16px;
+        font-weight: normal;
+      }
+
+      FIELDSET {
+        border: solid 1px #CCC;
+        -moz-border-radius: 16px;
+        -webkit-border-radius: 16px;
+        border-radius: 16px;
+        padding: 1em 2em;
+        margin: 1em 0em;
+      }
+
+      LEGEND {
+        color: #666;
+        font-size: 16px;
+        padding: 0em .5em;
+      }
+
+      PRE {
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+        color: #666;
+        background: #F8F8F8;
+        padding: 1em;
+        -moz-border-radius: 8px;
+        -webkit-border-radius: 8px;
+        border-radius: 8px;
+      }
+    </style>
+
+<title>Web Based Visual Programming</title>
+</head>
+
+<body>
+  <h1>
+  <center>
+    <font color=#4E76C9>
+      Web Based Visual Programming IDE
+    </font>
+  </center>
+  </h1>
+
+<fieldset>
+<legend>
+  Control Buttons
+</legend>
+<center>
+  <span title="Click this button to display and send your code to the robot.">
+    <p>
+      <input onclick="myFunction()" type="button" value="Run Code"/>
+    </p>
+  </span>
+</center>
+
+<span title="Click this button to set-up a wireless connection with the robot.">
+  <button type="button" onclick="connect_to_robot()" style="position:absolute;left:40px; top:100px;">
+    Connect to Robot
+  </button>
+</span>
+
+<span title="Click this button to clear your workspace of blocks.">
+  <button type="button" onclick="Clear_workspace()" style="position:absolute;right:40px; top:100px;">
+    Clear Workspace
+  </button>
+</span>
+
+<span title="This indicates the status of your connection with the robot.">
+  <h3 id="status_bar">Connection Status...</h3>
+</span>
+
+<center>
+  Drag and drop the blocks onto the field to program your robot. Then press the "Run my Code" button once you're done programming.
+</center>
+
+<span title="Click this button to display your code.">
+  <button onclick="show_code()" style="position:absolute; right:55px; top:270px;">
+    Show Code
+  </button>
+</span>
+
+<span title="Click this button to terminate the execution of your code.">
+  <button onclick="abort_code()" style="position:absolute; right:55px; top:295px;">
+    Abort Code
+  </button>
+</span>
+</fieldset>
+
+  <script type="text/javascript" src="blockly_compressed.js"></script>
+  <script type="text/javascript" src="blocks_compressed.js"></script>
+  <script type="text/javascript" src="javascript_compressed.js"></script>
+  
+  <script type="text/javascript" src="my_blocks.js"></script>
+  <script type="text/javascript" src="puppet_blocks.js"></script>
+  <script type="text/javascript" src="en.js"></script>
+	<div id="container">
+	
+  <fieldset>
+  <legend>Blocks</legend>
+  <div id="blocklyDiv" style="height: 100% ; width: 99%;"></div>
+  </fieldset>
+
+  <b>
+    If you want more information about this new graphic coding language, check out
+    <a href="https://code.google.com/p/blockly/" target="_blank">Blockly</a>,
+    a developing project led by Google. 
+  </b>
+ 
+
+  <xml id="toolbox" style="display: none">
+	<block type="puppet_say_hello"></block>
+  <block type="puppet_jump"></block>
+  <block type="puppet_dance"></block>
+  <block type="puppet_take_a_pic"></block>
+  <block type="puppet_green_gblin"></block>
+  <block type="puppet_costume"></block>
+  <block type="puppet_say_bye"></block>
+  <block type="puppet_walk"></block>
+
+
+  
+  
+  
+	
+  </xml>
+
+  <script type="text/javascript">
+
+  window.WebSocket = window.WebSocket || window.MozWebSocket;
+ 
+  var websocket; 
+  var code;
+  var msg_to_send;
+  var abort_code;
+  
+  function myFunction(){
+  alert(msg_to_send);
+  websocket.send(msg_to_send);
+	console.log('msg_to_send='+msg_to_send);
+    }
+
+function show_code() {
+    alert(msg_to_send);
+}
+
+function Clear_workspace(){
+  Blockly.mainWorkspace.clear();
+}
+
+function abort_code(){
+  abort_code='#include<stdio.h>\n#include<stdlib.h>\n#include"my_puppet_lib.h"\n int count;\nmain(){\nexit(0);\n}\n//end of main';
+  websocket.send(abort_code);
+  alert(abort_code);
+  console.log("abort_code="+abort_code);
+}
+
+function connect_to_robot(){
+  websocket = new WebSocket('ws://192.168.1.102:9000','dumb-increment-protocol');
+  websocket.onopen = function () {
+					document.getElementById('status_bar').innerHTML = '<h3><font color=#85BF25>Connected to Robot</font></h3>';		
+                };
+ 
+                websocket.onerror = function () {
+                    document.getElementById('status_bar').innerHTML ='<h3><font color=#EE4444>Error connecting to Robot</font></h3>';
+                };
+}
+
+  
+    Blockly.inject(document.getElementById('blocklyDiv'),
+        {path: './', toolbox: document.getElementById('toolbox')});
+		
+	function myUpdateFunction() {
+	
+    msg_to_send = Blockly.JavaScript.workspaceToCode();
+	
+	msg_to_send='#include "my_puppet_lib.h"\n int count;\nmain(){\nsetup_Puppet();\n'+ msg_to_send +'\n}\n//end of main';
+   console.log(msg_to_send);
+  
+	
+  }
+  Blockly.addChangeListener(myUpdateFunction);
+  
+  </script>
+
+</html>
